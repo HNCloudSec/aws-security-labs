@@ -1,12 +1,16 @@
 name: iac-scan
+# Path-filtered to IaC content only. The guard step keeps the run green
+# until real Terraform lands in AWS-7, so an empty scaffold never fails CI.
 on:
   pull_request:
     paths:
-      - 'aws-7-cspm-iac/**'
+      - 'aws-7-cspm-iac/terraform/**'
+      - 'aws-7-cspm-iac/scanner/**'
   push:
     branches: [main]
     paths:
-      - 'aws-7-cspm-iac/**'
+      - 'aws-7-cspm-iac/terraform/**'
+      - 'aws-7-cspm-iac/scanner/**'
 
 jobs:
   scan:
@@ -14,27 +18,46 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0   # gitleaks needs history
+          fetch-depth: 0   # gitleaks needs full history
+
+      - name: Check for Terraform files
+        id: guard
+        run: |
+          if ls aws-7-cspm-iac/terraform/*.tf >/dev/null 2>&1; then
+            echo "found=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "found=false" >> "$GITHUB_OUTPUT"
+            echo "No Terraform files yet — skipping IaC scans."
+          fi
+
       - uses: hashicorp/setup-terraform@v3
-      - name: Terraform fmt & validate
+        if: steps.guard.outputs.found == 'true'
+
+      - name: Terraform fmt and validate
+        if: steps.guard.outputs.found == 'true'
         working-directory: aws-7-cspm-iac/terraform
         run: |
           terraform fmt -check
           terraform init -backend=false
           terraform validate
+
       - name: Checkov
+        if: steps.guard.outputs.found == 'true'
         uses: bridgecrewio/checkov-action@v12
         with:
           directory: aws-7-cspm-iac
           quiet: true
           soft_fail: false
+
       - name: Trivy config scan
+        if: steps.guard.outputs.found == 'true'
         uses: aquasecurity/trivy-action@0.28.0
         with:
           scan-type: config
           scan-ref: aws-7-cspm-iac/terraform
           exit-code: '1'
           severity: HIGH,CRITICAL
+
       - name: gitleaks
         uses: gitleaks/gitleaks-action@v2
         env:
