@@ -1,0 +1,23 @@
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+*.tfvars
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Packaging / artifacts
+*.zip
+
+# Secrets & local config
+.env
+*.pem
+credentials
+config
+.aws/
+
+# OS noise
+.DS_Store

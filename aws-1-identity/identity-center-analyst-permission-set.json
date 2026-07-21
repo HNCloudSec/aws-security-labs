@@ -1,0 +1,18 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    { "Effect": "Allow",
+      "Action": ["guardduty:Get*","guardduty:List*","securityhub:Get*","securityhub:List*",
+                 "cloudtrail:LookupEvents","cloudtrail:Get*","logs:FilterLogEvents","logs:Get*",
+                 "logs:Describe*","config:Get*","config:List*","config:Describe*",
+                 "iam:Get*","iam:List*","iam:GenerateCredentialReport",
+                 "iam:GenerateServiceLastAccessedDetails"],
+      "Resource": "*" },
+    { "Effect": "Deny",
+      "Action": ["iam:Create*","iam:Delete*","iam:Update*","iam:Put*","iam:Attach*",
+                 "iam:Detach*","iam:Add*","iam:Remove*","iam:Set*","iam:Tag*","iam:Untag*",
+                 "iam:PassRole","iam:ChangePassword","iam:UpdateAssumeRolePolicy",
+                 "organizations:*"],
+      "Resource": "*" }
+  ]
+}

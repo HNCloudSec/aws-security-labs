@@ -1,4 +1,4 @@
-# AWS Security Lab 
+# AWS Security Labs
 
 Hands-on AWS security engineering portfolio: IAM guardrails, detection-as-code, automated
 incident response, and MITRE ATT&CK coverage mapping — built in a live AWS Organization,
@@ -9,8 +9,8 @@ deployed as code, and validated with real attack detonations (Stratus Red Team).
 communication* artifact; this one is the *hands-on build and code* artifact.
 
 <!-- CI badges: uncomment once the AWS-6 / AWS-7 workflows have run at least once
-[![detections](https://github.com/HNCloudSec/aws-security-lab-2026/actions/workflows/detections.yml/badge.svg)](https://github.com/HNCloudSec/aws-security-lab-2026/actions/workflows/detections.yml)
-[![iac-scan](https://github.com/HNCloudSec/aws-security-lab-2026/actions/workflows/iac-scan.yml/badge.svg)](https://github.com/HNCloudSec/aws-security-lab-2026/actions/workflows/iac-scan.yml)
+[![detections](https://github.com/HNCloudSec/aws-security-labs/actions/workflows/detections.yml/badge.svg)](https://github.com/HNCloudSec/aws-security-labs/actions/workflows/detections.yml)
+[![iac-scan](https://github.com/HNCloudSec/aws-security-labs/actions/workflows/iac-scan.yml/badge.svg)](https://github.com/HNCloudSec/aws-security-labs/actions/workflows/iac-scan.yml)
 -->
 
 ## Lab map

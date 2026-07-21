@@ -1,0 +1,16 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    { "Sid": "DevServices", "Effect": "Allow",
+      "Action": ["ec2:*","s3:*","lambda:*","cloudwatch:*","logs:*"], "Resource": "*" },
+    { "Sid": "ScopedPassRole", "Effect": "Allow", "Action": "iam:PassRole",
+      "Resource": "arn:aws:iam::*:role/app-*",
+      "Condition": { "StringEquals": { "iam:PassedToService":
+        ["ec2.amazonaws.com","lambda.amazonaws.com"] } } },
+    { "Sid": "DenyEscalationAndGovernance", "Effect": "Deny",
+      "Action": ["iam:CreateUser","iam:CreateAccessKey","iam:AttachUserPolicy","iam:PutUserPolicy",
+                 "iam:AttachRolePolicy","iam:PutRolePolicy","iam:CreatePolicyVersion",
+                 "organizations:*","account:*","billing:*"],
+      "Resource": "*" }
+  ]
+}

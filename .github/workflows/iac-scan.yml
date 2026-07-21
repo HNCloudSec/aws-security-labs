@@ -1,0 +1,41 @@
+name: iac-scan
+on:
+  pull_request:
+    paths:
+      - 'aws-7-cspm-iac/**'
+  push:
+    branches: [main]
+    paths:
+      - 'aws-7-cspm-iac/**'
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # gitleaks needs history
+      - uses: hashicorp/setup-terraform@v3
+      - name: Terraform fmt & validate
+        working-directory: aws-7-cspm-iac/terraform
+        run: |
+          terraform fmt -check
+          terraform init -backend=false
+          terraform validate
+      - name: Checkov
+        uses: bridgecrewio/checkov-action@v12
+        with:
+          directory: aws-7-cspm-iac
+          quiet: true
+          soft_fail: false
+      - name: Trivy config scan
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: config
+          scan-ref: aws-7-cspm-iac/terraform
+          exit-code: '1'
+          severity: HIGH,CRITICAL
+      - name: gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
