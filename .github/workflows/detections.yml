@@ -1,32 +1,63 @@
 name: detections
-# Path-filtered: runs only when detection content changes, so the empty scaffold stays green.
+# Path-filtered to detection content only. The guard step keeps the run green
+# until real Sigma rules land in AWS-6, so an empty scaffold never fails CI.
 on:
   pull_request:
     paths:
-      - 'aws-6-detection-as-code/**'
+      - 'aws-6-detection-as-code/detections/**'
+      - 'aws-6-detection-as-code/tests/**'
   push:
     branches: [main]
     paths:
-      - 'aws-6-detection-as-code/**'
+      - 'aws-6-detection-as-code/detections/**'
+      - 'aws-6-detection-as-code/tests/**'
 
 jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Check for Sigma rules
+        id: guard
+        run: |
+          if ls aws-6-detection-as-code/detections/*.yml >/dev/null 2>&1; then
+            echo "found=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "found=false" >> "$GITHUB_OUTPUT"
+            echo "No Sigma rules yet — skipping validation."
+          fi
+
       - uses: actions/setup-python@v5
+        if: steps.guard.outputs.found == 'true'
         with:
           python-version: '3.12'
+
       - name: Install toolchain
+        if: steps.guard.outputs.found == 'true'
         run: |
+          python -m pip install --upgrade pip
           python -m pip install sigma-cli pytest pyyaml
           sigma plugin install splunk
+
       - name: Lint Sigma rules
+        if: steps.guard.outputs.found == 'true'
         run: sigma check aws-6-detection-as-code/detections/
-      - name: Convert to SPL
+
+      - name: Convert to Splunk SPL
+        if: steps.guard.outputs.found == 'true'
         run: |
           sigma list pipelines
-          sigma convert -t splunk -p splunk_cim_dm aws-6-detection-as-code/detections/ \
+          mkdir -p aws-6-detection-as-code/splunk
+          sigma convert -t splunk -p splunk_cim_dm \
+            aws-6-detection-as-code/detections/ \
             -o aws-6-detection-as-code/splunk/generated.spl
+
       - name: Run detection tests
-        run: pytest aws-6-detection-as-code/tests/ -q
+        if: steps.guard.outputs.found == 'true'
+        run: |
+          if ls aws-6-detection-as-code/tests/test_*.py >/dev/null 2>&1; then
+            pytest aws-6-detection-as-code/tests/ -q
+          else
+            echo "No pytest files yet — skipping tests."
+          fi
