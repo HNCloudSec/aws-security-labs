@@ -1,0 +1,19 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AllowServicePublish",
+      "Effect": "Allow",
+      "Principal": { "Service": ["events.amazonaws.com", "cloudwatch.amazonaws.com"] },
+      "Action": "sns:Publish",
+      "Resource": "arn:aws:sns:us-east-1:112233445566:lab-security-alerts"
+    },
+    {
+      "Sid": "AllowAccountOwner",
+      "Effect": "Allow",
+      "Principal": { "AWS": "112233445566" },
+      "Action": ["sns:Publish","sns:Subscribe","sns:GetTopicAttributes","sns:SetTopicAttributes","sns:ListSubscriptionsByTopic","sns:DeleteTopic"],
+      "Resource": "arn:aws:sns:us-east-1:112233445566:lab-security-alerts"
+    }
+  ]
+}
